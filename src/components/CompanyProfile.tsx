@@ -17,6 +17,7 @@ interface CompanyData {
   phone: string;
   email: string;
   website: string;
+  logoUrl: string;
   gstin: string;
   pan: string;
   bankName: string;
@@ -35,6 +36,7 @@ export const CompanyProfile = () => {
     phone: "",
     email: "",
     website: "",
+    logoUrl: "",
     gstin: "",
     pan: "",
     bankName: "",
@@ -69,6 +71,7 @@ export const CompanyProfile = () => {
           phone: data.phone || "",
           email: data.email || "",
           website: data.website || "",
+          logoUrl: data.logo_url || "",
           gstin: data.gstin || "",
           pan: data.pan || "",
           bankName: data.bank_name || "",
@@ -108,6 +111,7 @@ export const CompanyProfile = () => {
           phone: companyData.phone,
           email: companyData.email,
           website: companyData.website,
+          logo_url: companyData.logoUrl,
           gstin: companyData.gstin,
           pan: companyData.pan,
           bank_name: companyData.bankName,
@@ -269,6 +273,50 @@ export const CompanyProfile = () => {
                 onChange={handleInputChange("pan")}
                 placeholder="AAAAA0000A"
               />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Company Logo */}
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle>Company Logo</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex flex-col md:flex-row gap-6">
+              <div className="flex-1">
+                <Label htmlFor="logoUrl">Logo URL</Label>
+                <Input
+                  id="logoUrl"
+                  value={companyData.logoUrl}
+                  onChange={handleInputChange("logoUrl")}
+                  placeholder="https://example.com/logo.png"
+                />
+                <p className="text-sm text-muted-foreground mt-2">
+                  Enter a direct URL to your company logo image
+                </p>
+              </div>
+              <div className="flex-shrink-0">
+                <Label>Logo Preview</Label>
+                <div className="mt-2 w-32 h-32 border-2 border-dashed border-muted-foreground rounded-lg flex items-center justify-center bg-muted/10">
+                  {companyData.logoUrl ? (
+                    <img
+                      src={companyData.logoUrl}
+                      alt="Company Logo"
+                      className="max-w-full max-h-full object-contain rounded-lg"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                        e.currentTarget.parentElement!.innerHTML = '<div class="text-center text-muted-foreground"><Building2 class="h-8 w-8 mx-auto mb-2" /><p class="text-sm">Invalid URL</p></div>';
+                      }}
+                    />
+                  ) : (
+                    <div className="text-center text-muted-foreground">
+                      <Building2 className="h-8 w-8 mx-auto mb-2" />
+                      <p className="text-sm">No logo</p>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
