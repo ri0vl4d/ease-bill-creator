@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Building2, Save } from "lucide-react";
+import { Building2, Save, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface CompanyData {
   name: string;
@@ -40,6 +41,52 @@ export const CompanyProfile = () => {
     accountNumber: "",
     ifscCode: "",
   });
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  // Load company profile data on component mount
+  useEffect(() => {
+    loadCompanyProfile();
+  }, []);
+
+  const loadCompanyProfile = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('company_profile')
+        .select('*')
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (data) {
+        setCompanyData({
+          name: data.company_name || "",
+          address: data.address || "",
+          city: "", // Not in database schema
+          state: "", // Not in database schema
+          zipCode: "", // Not in database schema
+          phone: data.phone || "",
+          email: data.email || "",
+          website: data.website || "",
+          gstin: data.gstin || "",
+          pan: data.pan || "",
+          bankName: data.bank_name || "",
+          accountNumber: data.bank_account_number || "",
+          ifscCode: data.bank_ifsc || "",
+        });
+      }
+    } catch (error) {
+      console.error('Error loading company profile:', error);
+      toast({
+        title: "Error loading profile",
+        description: "Failed to load company profile data.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleInputChange = (field: keyof CompanyData) => (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -50,12 +97,42 @@ export const CompanyProfile = () => {
     }));
   };
 
-  const handleSave = () => {
-    // In a real app, this would save to database
-    toast({
-      title: "Company profile saved",
-      description: "Your company information has been updated successfully.",
-    });
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const { data, error } = await supabase
+        .from('company_profile')
+        .upsert({
+          company_name: companyData.name,
+          address: companyData.address,
+          phone: companyData.phone,
+          email: companyData.email,
+          website: companyData.website,
+          gstin: companyData.gstin,
+          pan: companyData.pan,
+          bank_name: companyData.bankName,
+          bank_account_number: companyData.accountNumber,
+          bank_ifsc: companyData.ifscCode,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      toast({
+        title: "Company profile saved",
+        description: "Your company information has been updated successfully.",
+      });
+    } catch (error) {
+      console.error('Error saving company profile:', error);
+      toast({
+        title: "Error saving profile",
+        description: "Failed to save company profile. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -236,9 +313,13 @@ export const CompanyProfile = () => {
       </div>
 
       <div className="flex justify-end">
-        <Button onClick={handleSave} variant="gradient" size="lg">
-          <Save className="h-4 w-4" />
-          Save Company Profile
+        <Button onClick={handleSave} variant="gradient" size="lg" disabled={saving}>
+          {saving ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Save className="h-4 w-4" />
+          )}
+          {saving ? "Saving..." : "Save Company Profile"}
         </Button>
       </div>
     </div>
