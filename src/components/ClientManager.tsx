@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,17 +6,16 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Users, Plus, Edit, Trash2, Search } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Client {
   id: string;
   name: string;
-  email: string;
-  phone: string;
-  address: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  gstin: string;
+  email: string | null;
+  phone: string | null;
+  address: string | null;
+  gstin: string | null;
+  company_name: string | null;
 }
 
 export const ClientManager = () => {
@@ -25,16 +24,15 @@ export const ClientManager = () => {
   const [isAddingClient, setIsAddingClient] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
   
   const [formData, setFormData] = useState<Omit<Client, "id">>({
     name: "",
     email: "",
     phone: "",
     address: "",
-    city: "",
-    state: "",
-    zipCode: "",
     gstin: "",
+    company_name: "",
   });
 
   const resetForm = () => {
@@ -43,10 +41,8 @@ export const ClientManager = () => {
       email: "",
       phone: "",
       address: "",
-      city: "",
-      state: "",
-      zipCode: "",
       gstin: "",
+      company_name: "",
     });
     setIsAddingClient(false);
     setEditingClient(null);
@@ -61,7 +57,31 @@ export const ClientManager = () => {
     }));
   };
 
-  const handleSave = () => {
+  useEffect(() => {
+    loadClients();
+  }, []);
+
+  const loadClients = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('clients')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setClients(data || []);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to load clients.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSave = async () => {
     if (!formData.name.trim()) {
       toast({
         title: "Error",
@@ -71,29 +91,41 @@ export const ClientManager = () => {
       return;
     }
 
-    if (editingClient) {
-      setClients(prev => prev.map(client => 
-        client.id === editingClient.id 
-          ? { ...formData, id: editingClient.id }
-          : client
-      ));
+    try {
+      if (editingClient) {
+        const { error } = await supabase
+          .from('clients')
+          .update(formData)
+          .eq('id', editingClient.id);
+
+        if (error) throw error;
+
+        toast({
+          title: "Client updated",
+          description: "Client information has been updated successfully.",
+        });
+      } else {
+        const { error } = await supabase
+          .from('clients')
+          .insert([formData]);
+
+        if (error) throw error;
+
+        toast({
+          title: "Client added",
+          description: "New client has been added successfully.",
+        });
+      }
+
+      await loadClients();
+      resetForm();
+    } catch (error) {
       toast({
-        title: "Client updated",
-        description: "Client information has been updated successfully.",
-      });
-    } else {
-      const newClient: Client = {
-        ...formData,
-        id: Date.now().toString(),
-      };
-      setClients(prev => [...prev, newClient]);
-      toast({
-        title: "Client added",
-        description: "New client has been added successfully.",
+        title: "Error",
+        description: `Failed to ${editingClient ? 'update' : 'add'} client.`,
+        variant: "destructive",
       });
     }
-
-    resetForm();
   };
 
   const handleEdit = (client: Client) => {
@@ -102,17 +134,34 @@ export const ClientManager = () => {
     setIsAddingClient(true);
   };
 
-  const handleDelete = (clientId: string) => {
-    setClients(prev => prev.filter(client => client.id !== clientId));
-    toast({
-      title: "Client deleted",
-      description: "Client has been removed successfully.",
-    });
+  const handleDelete = async (clientId: string) => {
+    try {
+      const { error } = await supabase
+        .from('clients')
+        .delete()
+        .eq('id', clientId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Client deleted",
+        description: "Client has been removed successfully.",
+      });
+
+      await loadClients();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete client.",
+        variant: "destructive",
+      });
+    }
   };
 
   const filteredClients = clients.filter(client =>
     client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    client.email.toLowerCase().includes(searchTerm.toLowerCase())
+    (client.email && client.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (client.company_name && client.company_name.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   return (
@@ -161,32 +210,44 @@ export const ClientManager = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="clientEmail">Email</Label>
+                <Label htmlFor="companyName">Company Name</Label>
                 <Input
-                  id="clientEmail"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleInputChange("email")}
-                  placeholder="client@example.com"
+                  id="companyName"
+                  value={formData.company_name || ""}
+                  onChange={handleInputChange("company_name")}
+                  placeholder="Company Name"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
+                <Label htmlFor="clientEmail">Email</Label>
+                <Input
+                  id="clientEmail"
+                  type="email"
+                  value={formData.email || ""}
+                  onChange={handleInputChange("email")}
+                  placeholder="client@example.com"
+                />
+              </div>
+              <div>
                 <Label htmlFor="clientPhone">Phone</Label>
                 <Input
                   id="clientPhone"
-                  value={formData.phone}
+                  value={formData.phone || ""}
                   onChange={handleInputChange("phone")}
                   placeholder="+91 98765 43210"
                 />
               </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="clientGstin">GSTIN</Label>
                 <Input
                   id="clientGstin"
-                  value={formData.gstin}
+                  value={formData.gstin || ""}
                   onChange={handleInputChange("gstin")}
                   placeholder="22AAAAA0000A1Z5"
                 />
@@ -197,41 +258,11 @@ export const ClientManager = () => {
               <Label htmlFor="clientAddress">Address</Label>
               <Textarea
                 id="clientAddress"
-                value={formData.address}
+                value={formData.address || ""}
                 onChange={handleInputChange("address")}
-                placeholder="Street Address"
+                placeholder="Complete Address"
                 rows={3}
               />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <Label htmlFor="clientCity">City</Label>
-                <Input
-                  id="clientCity"
-                  value={formData.city}
-                  onChange={handleInputChange("city")}
-                  placeholder="City"
-                />
-              </div>
-              <div>
-                <Label htmlFor="clientState">State</Label>
-                <Input
-                  id="clientState"
-                  value={formData.state}
-                  onChange={handleInputChange("state")}
-                  placeholder="State"
-                />
-              </div>
-              <div>
-                <Label htmlFor="clientZip">ZIP Code</Label>
-                <Input
-                  id="clientZip"
-                  value={formData.zipCode}
-                  onChange={handleInputChange("zipCode")}
-                  placeholder="ZIP Code"
-                />
-              </div>
             </div>
 
             <div className="flex space-x-4">
@@ -305,16 +336,14 @@ export const ClientManager = () => {
                     </div>
                     
                     <div className="space-y-2 text-sm">
+                      {client.company_name && (
+                        <p className="text-muted-foreground font-medium">{client.company_name}</p>
+                      )}
                       {client.email && (
                         <p className="text-muted-foreground">{client.email}</p>
                       )}
                       {client.phone && (
                         <p className="text-muted-foreground">{client.phone}</p>
-                      )}
-                      {(client.city || client.state) && (
-                        <p className="text-muted-foreground">
-                          {[client.city, client.state].filter(Boolean).join(", ")}
-                        </p>
                       )}
                       {client.gstin && (
                         <p className="text-xs text-muted-foreground">
