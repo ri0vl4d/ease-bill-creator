@@ -5,6 +5,7 @@ import { Dashboard } from "@/components/Dashboard";
 import { CompanyProfile } from "@/components/CompanyProfile";
 import { ClientManager } from "@/components/ClientManager";
 import { ProductManager } from "@/components/ProductManager";
+import { InvoiceManager } from "@/components/InvoiceManager";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -20,7 +21,7 @@ const Index = () => {
       case "products":
         return <ProductManager />;
       case "invoices":
-        return <div>Invoices coming soon...</div>;
+        return <InvoiceManager />;
       default:
         return <Dashboard onTabChange={setActiveTab} />;
     }
