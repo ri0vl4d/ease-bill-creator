@@ -1,37 +1,88 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FileText, Users, Package, DollarSign, Plus, TrendingUp } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
 
 interface DashboardProps {
   onTabChange: (tab: string) => void;
 }
 
 export const Dashboard = ({ onTabChange }: DashboardProps) => {
+  const [stats, setStats] = useState({
+    totalInvoices: 0,
+    activeClients: 0,
+    totalProducts: 0,
+    totalRevenue: 0,
+  });
+
+  useEffect(() => {
+    fetchDashboardStats();
+  }, []);
+
+  const fetchDashboardStats = async () => {
+    try {
+      // Fetch invoice count and revenue
+      const { data: invoices, error: invoicesError } = await supabase
+        .from('invoices')
+        .select('total_amount, status');
+      
+      if (invoicesError) throw invoicesError;
+
+      // Fetch client count
+      const { count: clientCount, error: clientsError } = await supabase
+        .from('clients')
+        .select('*', { count: 'exact', head: true });
+      
+      if (clientsError) throw clientsError;
+
+      // Fetch product count
+      const { count: productCount, error: productsError } = await supabase
+        .from('products')
+        .select('*', { count: 'exact', head: true });
+      
+      if (productsError) throw productsError;
+
+      // Calculate revenue from paid invoices
+      const paidInvoices = invoices?.filter(inv => inv.status === 'paid') || [];
+      const totalRevenue = paidInvoices.reduce((sum, inv) => sum + inv.total_amount, 0);
+
+      setStats({
+        totalInvoices: invoices?.length || 0,
+        activeClients: clientCount || 0,
+        totalProducts: productCount || 0,
+        totalRevenue,
+      });
+    } catch (error) {
+      console.error('Error fetching dashboard stats:', error);
+    }
+  };
+
   const stats = [
     {
       title: "Total Invoices",
-      value: "0",
+      value: stats.totalInvoices.toString(),
       icon: FileText,
       color: "text-primary",
       bgColor: "bg-primary/10",
     },
     {
       title: "Active Clients",
-      value: "0",
+      value: stats.activeClients.toString(),
       icon: Users,
       color: "text-success",
       bgColor: "bg-success/10",
     },
     {
       title: "Products",
-      value: "0",
+      value: stats.totalProducts.toString(),
       icon: Package,
       color: "text-info",
       bgColor: "bg-info/10",
     },
     {
       title: "Revenue",
-      value: "₹0",
+      value: `₹${stats.totalRevenue.toLocaleString('en-IN')}`,
       icon: DollarSign,
       color: "text-warning",
       bgColor: "bg-warning/10",
