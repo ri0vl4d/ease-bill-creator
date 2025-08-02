@@ -58,7 +58,7 @@ export const Dashboard = ({ onTabChange }: DashboardProps) => {
     }
   };
 
-  const stats = [
+  const statsConfig = [
     {
       title: "Total Invoices",
       value: stats.totalInvoices.toString(),
@@ -108,7 +108,7 @@ export const Dashboard = ({ onTabChange }: DashboardProps) => {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((stat) => (
+        {statsConfig.map((stat) => (
           <Card key={stat.title} className="hover:shadow-md transition-shadow">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">

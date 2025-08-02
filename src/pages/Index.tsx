@@ -6,7 +6,6 @@ import { CompanyProfile } from "@/components/CompanyProfile";
 import { ClientManager } from "@/components/ClientManager";
 import { ProductManager } from "@/components/ProductManager";
 import { InvoiceManager } from "@/components/InvoiceManager";
-import { InvoiceManager } from "@/components/InvoiceManager";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
