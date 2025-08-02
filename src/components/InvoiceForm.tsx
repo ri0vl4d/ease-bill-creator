@@ -152,13 +152,19 @@ export const InvoiceForm = ({ invoice, clients, onSave, onCancel }: InvoiceFormP
     newItems[index] = { ...newItems[index], [field]: value };
 
     // If product is selected, auto-fill details
-    if (field === 'product_id' && value) {
+    if (field === 'product_id' && value && value !== "custom") {
       const product = products.find(p => p.id === value);
       if (product) {
         newItems[index].item_name = product.name;
         newItems[index].unit_price = product.unit_price;
         newItems[index].gst_rate = product.gst_rate;
       }
+    } else if (field === 'product_id' && value === "custom") {
+      // Clear product-specific fields for custom items
+      newItems[index].product_id = null;
+      newItems[index].item_name = "";
+      newItems[index].unit_price = 0;
+      newItems[index].gst_rate = 18;
     }
 
     // Recalculate totals
@@ -376,13 +382,13 @@ export const InvoiceForm = ({ invoice, clients, onSave, onCancel }: InvoiceFormP
                             <Label>Product (Optional)</Label>
                             <Select
                               value={item.product_id || ""}
-                              onValueChange={(value) => updateItem(index, 'product_id', value || null)}
+                              onValueChange={(value) => updateItem(index, 'product_id', value === "custom" ? null : value)}
                             >
                               <SelectTrigger>
                                 <SelectValue placeholder="Select a product" />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="">Custom Item</SelectItem>
+                                <SelectItem value="custom">Custom Item</SelectItem>
                                 {products.map((product) => (
                                   <SelectItem key={product.id} value={product.id}>
                                     {product.name}
