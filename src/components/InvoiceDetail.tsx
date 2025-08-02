@@ -5,6 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, Edit, Download, Calendar, Building2, Mail, Phone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { generateInvoicePDF } from "@/utils/pdfGenerator";
 
 interface InvoiceItem {
   id: string;
@@ -57,10 +59,12 @@ interface InvoiceDetailProps {
 }
 
 export const InvoiceDetail = ({ invoice, onEdit, onClose }: InvoiceDetailProps) => {
+  const { toast } = useToast();
   const [items, setItems] = useState<InvoiceItem[]>([]);
   const [client, setClient] = useState<Client | null>(null);
   const [company, setCompany] = useState<CompanyProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [downloadingPDF, setDownloadingPDF] = useState(false);
 
   useEffect(() => {
     fetchInvoiceDetails();
@@ -134,6 +138,48 @@ export const InvoiceDetail = ({ invoice, onEdit, onClose }: InvoiceDetailProps) 
     });
   };
 
+  const handleDownloadPDF = async () => {
+    if (!client || !items.length) {
+      toast({
+        title: "Error",
+        description: "Unable to generate PDF. Missing invoice data.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setDownloadingPDF(true);
+    try {
+      await generateInvoicePDF({
+        invoice,
+        client,
+        company,
+        items: items.map(item => ({
+          item_name: item.item_name,
+          description: item.description,
+          quantity: item.quantity,
+          unit_price: item.unit_price,
+          gst_rate: item.gst_rate,
+          line_total: item.line_total,
+          gst_amount: item.gst_amount,
+        })),
+      });
+
+      toast({
+        title: "Success",
+        description: "Invoice PDF downloaded successfully!",
+      });
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      toast({
+        title: "Error",
+        description: "Failed to generate PDF. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setDownloadingPDF(false);
+    }
+  };
   if (loading) {
     return (
       <Card>
@@ -171,9 +217,13 @@ export const InvoiceDetail = ({ invoice, onEdit, onClose }: InvoiceDetailProps) 
                 <Edit className="h-4 w-4 mr-2" />
                 Edit
               </Button>
-              <Button variant="outline">
+              <Button 
+                variant="outline" 
+                onClick={handleDownloadPDF}
+                disabled={downloadingPDF}
+              >
                 <Download className="h-4 w-4 mr-2" />
-                Download PDF
+                {downloadingPDF ? "Generating..." : "Download PDF"}
               </Button>
             </div>
           </div>
