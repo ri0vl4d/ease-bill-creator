@@ -36,6 +36,11 @@ interface CompanyProfile {
   phone: string | null;
   gstin: string | null;
   pan: string | null;
+  logo_url: string | null;
+  bank_name: string | null;
+  bank_account_number: string | null;
+  bank_ifsc: string | null;
+  website: string | null;
 }
 
 interface Invoice {
@@ -153,7 +158,19 @@ export const InvoiceDetail = ({ invoice, onEdit, onClose }: InvoiceDetailProps) 
       await generateInvoicePDF({
         invoice,
         client,
-        company,
+        company: company ? {
+          company_name: company.company_name,
+          address: company.address,
+          email: company.email,
+          phone: company.phone,
+          gstin: company.gstin,
+          pan: company.pan,
+          logo_url: company.logo_url,
+          bank_name: company.bank_name,
+          bank_account_number: company.bank_account_number,
+          bank_ifsc: company.bank_ifsc,
+          website: company.website,
+        } : null,
         items: items.map(item => ({
           item_name: item.item_name,
           description: item.description,
