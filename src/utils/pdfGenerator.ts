@@ -1,7 +1,9 @@
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { PDFStyle } from '@/types/pdfStyles';
-import { generateSimpleLogoTemplate, generateFormalLetterheadTemplate } from './pdfTemplates';
+import { generateSimpleLogoTemplate } from '@/templates/SimpleLogoTemplate';
+import { generateFormalLetterheadTemplate } from '@/templates/FormalLetterheadTemplate';
+import { generateModernMinimalTemplate } from '@/templates/ModernMinimalTemplate';
 
 interface InvoiceData {
   invoice: {
@@ -68,11 +70,14 @@ export const generateInvoicePDF = async (data: InvoiceData) => {
   
   switch (pdfStyle) {
     case PDFStyle.FORMAL_LETTERHEAD:
-      htmlContent = generateFormalLetterheadTemplate(data);
+      htmlContent = await generateFormalLetterheadTemplate(data);
+      break;
+    case PDFStyle.MODERN_MINIMAL:
+      htmlContent = await generateModernMinimalTemplate(data);
       break;
     case PDFStyle.SIMPLE_LOGO:
     default:
-      htmlContent = generateSimpleLogoTemplate(data);
+      htmlContent = await generateSimpleLogoTemplate(data);
       break;
   }
 

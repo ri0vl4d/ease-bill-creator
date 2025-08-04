@@ -1,6 +1,7 @@
 export enum PDFStyle {
   SIMPLE_LOGO = 'simple_logo',
-  FORMAL_LETTERHEAD = 'formal_letterhead'
+  FORMAL_LETTERHEAD = 'formal_letterhead',
+  MODERN_MINIMAL = 'modern_minimal'
 }
 
 export interface PDFStyleOption {
@@ -19,5 +20,10 @@ export const PDF_STYLE_OPTIONS: PDFStyleOption[] = [
     value: PDFStyle.FORMAL_LETTERHEAD,
     label: 'Formal Letterhead',
     description: 'Traditional business letterhead format'
+  },
+  {
+    value: PDFStyle.MODERN_MINIMAL,
+    label: 'Modern Minimal',
+    description: 'Contemporary design with clean typography'
   }
 ];
