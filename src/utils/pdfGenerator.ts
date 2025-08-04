@@ -4,6 +4,7 @@ import { PDFStyle } from '@/types/pdfStyles';
 import { generateSimpleLogoTemplate } from '@/templates/SimpleLogoTemplate';
 import { generateFormalLetterheadTemplate } from '@/templates/FormalLetterheadTemplate';
 import { generateModernMinimalTemplate } from '@/templates/ModernMinimalTemplate';
+import { generateExtrapeInvoiceTemplate } from './pdfTemplates';
 
 interface InvoiceData {
   invoice: {
@@ -74,6 +75,9 @@ export const generateInvoicePDF = async (data: InvoiceData) => {
       break;
     case PDFStyle.MODERN_MINIMAL:
       htmlContent = await generateModernMinimalTemplate(data);
+      break;
+    case PDFStyle.EXTRAPE_INVOICE:
+      htmlContent = await generateExtrapeInvoiceTemplate(data);
       break;
     case PDFStyle.SIMPLE_LOGO:
     default:
