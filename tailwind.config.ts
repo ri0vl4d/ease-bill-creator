@@ -18,9 +18,6 @@ export default {
 			}
 		},
 		extend: {
-			fontFamily: {
-				'alex-brush': ['Alex Brush', 'cursive'],
-			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',

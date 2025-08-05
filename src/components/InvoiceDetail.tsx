@@ -7,8 +7,6 @@ import { ArrowLeft, Edit, Download, Calendar, Building2, Mail, Phone } from "luc
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { generateInvoicePDF } from "@/utils/pdfGenerator";
-import { PDFStyle, PDF_STYLE_OPTIONS } from "@/types/pdfStyles";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface InvoiceItem {
   id: string;
@@ -38,11 +36,6 @@ interface CompanyProfile {
   phone: string | null;
   gstin: string | null;
   pan: string | null;
-  logo_url: string | null;
-  bank_name: string | null;
-  bank_account_number: string | null;
-  bank_ifsc: string | null;
-  website: string | null;
 }
 
 interface Invoice {
@@ -72,7 +65,6 @@ export const InvoiceDetail = ({ invoice, onEdit, onClose }: InvoiceDetailProps) 
   const [company, setCompany] = useState<CompanyProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [downloadingPDF, setDownloadingPDF] = useState(false);
-  const [selectedPDFStyle, setSelectedPDFStyle] = useState<PDFStyle>(PDFStyle.SIMPLE_LOGO);
 
   useEffect(() => {
     fetchInvoiceDetails();
@@ -161,19 +153,7 @@ export const InvoiceDetail = ({ invoice, onEdit, onClose }: InvoiceDetailProps) 
       await generateInvoicePDF({
         invoice,
         client,
-        company: company ? {
-          company_name: company.company_name,
-          address: company.address,
-          email: company.email,
-          phone: company.phone,
-          gstin: company.gstin,
-          pan: company.pan,
-          logo_url: company.logo_url,
-          bank_name: company.bank_name,
-          bank_account_number: company.bank_account_number,
-          bank_ifsc: company.bank_ifsc,
-          website: company.website,
-        } : null,
+        company,
         items: items.map(item => ({
           item_name: item.item_name,
           description: item.description,
@@ -183,7 +163,6 @@ export const InvoiceDetail = ({ invoice, onEdit, onClose }: InvoiceDetailProps) 
           line_total: item.line_total,
           gst_amount: item.gst_amount,
         })),
-        pdfStyle: selectedPDFStyle,
       });
 
       toast({
@@ -233,28 +212,7 @@ export const InvoiceDetail = ({ invoice, onEdit, onClose }: InvoiceDetailProps) 
                 </p>
               </div>
             </div>
-            <div className="flex gap-2 items-center">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Template:</span>
-                <Select
-                  value={selectedPDFStyle}
-                  onValueChange={(value) => setSelectedPDFStyle(value as PDFStyle)}
-                >
-                  <SelectTrigger className="w-[200px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {PDF_STYLE_OPTIONS.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        <div>
-                          <div className="font-medium">{option.label}</div>
-                          <div className="text-xs text-muted-foreground">{option.description}</div>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="flex gap-2">
               <Button variant="outline" onClick={onEdit}>
                 <Edit className="h-4 w-4 mr-2" />
                 Edit
