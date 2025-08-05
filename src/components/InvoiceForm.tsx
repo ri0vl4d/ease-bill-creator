@@ -60,9 +60,11 @@ interface InvoiceFormProps {
 export const InvoiceForm = ({ invoice, clients, onSave, onCancel }: InvoiceFormProps) => {
   const { toast } = useToast();
   const [products, setProducts] = useState<Product[]>([]);
+  const [companies, setCompanies] = useState<{id: string, company_name: string}[]>([]);
   const [loading, setLoading] = useState(false);
   
   const [formData, setFormData] = useState({
+    company_id: "",
     client_id: invoice?.client_id || "",
     invoice_date: invoice?.invoice_date || new Date().toISOString().split('T')[0],
     due_date: invoice?.due_date || "",
@@ -86,6 +88,7 @@ export const InvoiceForm = ({ invoice, clients, onSave, onCancel }: InvoiceFormP
 
   useEffect(() => {
     fetchProducts();
+    fetchCompanies();
     if (invoice) {
       fetchInvoiceItems();
     }
@@ -102,6 +105,25 @@ export const InvoiceForm = ({ invoice, clients, onSave, onCancel }: InvoiceFormP
       setProducts(data || []);
     } catch (error) {
       console.error("Error fetching products:", error);
+    }
+  };
+
+  const fetchCompanies = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("company_profile")
+        .select("id, company_name")
+        .order("company_name", { ascending: true });
+
+      if (error) throw error;
+      setCompanies(data || []);
+      
+      // Auto-select first company if creating new invoice
+      if (!invoice && data && data.length > 0) {
+        setFormData(prev => ({ ...prev, company_id: data[0].id }));
+      }
+    } catch (error) {
+      console.error("Error fetching companies:", error);
     }
   };
 
@@ -208,6 +230,16 @@ export const InvoiceForm = ({ invoice, clients, onSave, onCancel }: InvoiceFormP
     try {
       const { subtotal, totalGst, totalAmount } = calculateTotals();
       
+      // Validate company selection
+      if (!formData.company_id) {
+        toast({
+          title: "Error",
+          description: "Please select a company",
+          variant: "destructive",
+        });
+        return;
+      }
+
       // Create or update invoice
       const invoiceData = {
         ...formData,
@@ -302,6 +334,26 @@ export const InvoiceForm = ({ invoice, clients, onSave, onCancel }: InvoiceFormP
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Information */}
             <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="company">Company *</Label>
+                <Select 
+                  value={formData.company_id} 
+                  onValueChange={(value) => setFormData({...formData, company_id: value})}
+                  required
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select company" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {companies.map((company) => (
+                      <SelectItem key={company.id} value={company.id}>
+                        {company.company_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
               <div>
                 <Label htmlFor="client">Client *</Label>
                 <Select 

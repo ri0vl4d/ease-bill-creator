@@ -107,6 +107,7 @@ export type Database = {
           description: string | null
           gst_amount: number
           gst_rate: number
+          hsn_sac: string | null
           id: string
           invoice_id: string
           item_name: string
@@ -121,6 +122,7 @@ export type Database = {
           description?: string | null
           gst_amount?: number
           gst_rate?: number
+          hsn_sac?: string | null
           id?: string
           invoice_id: string
           item_name: string
@@ -135,6 +137,7 @@ export type Database = {
           description?: string | null
           gst_amount?: number
           gst_rate?: number
+          hsn_sac?: string | null
           id?: string
           invoice_id?: string
           item_name?: string
@@ -164,6 +167,7 @@ export type Database = {
       invoices: {
         Row: {
           client_id: string
+          company_id: string | null
           created_at: string
           discount: number
           due_date: string | null
@@ -179,6 +183,7 @@ export type Database = {
         }
         Insert: {
           client_id: string
+          company_id?: string | null
           created_at?: string
           discount?: number
           due_date?: string | null
@@ -194,6 +199,7 @@ export type Database = {
         }
         Update: {
           client_id?: string
+          company_id?: string | null
           created_at?: string
           discount?: number
           due_date?: string | null
@@ -213,6 +219,13 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_profile"
             referencedColumns: ["id"]
           },
         ]

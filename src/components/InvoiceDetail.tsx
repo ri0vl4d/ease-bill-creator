@@ -36,6 +36,11 @@ interface CompanyProfile {
   phone: string | null;
   gstin: string | null;
   pan: string | null;
+  logo_url: string | null;
+  bank_name: string | null;
+  bank_account_number: string | null;
+  bank_ifsc: string | null;
+  website: string | null;
 }
 
 interface Invoice {
