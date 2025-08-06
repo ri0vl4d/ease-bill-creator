@@ -1,42 +1,43 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Lock } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { authLib } from "@/lib/auth";
 
 export const AuthPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
-  const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      const result = await authLib.login(email, password);
 
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Logged in successfully!",
-      });
-      
-      navigate("/");
+      if (result.success) {
+        toast({
+          title: "Success",
+          description: "Logged in successfully!",
+        });
+        // Trigger a page refresh to update auth state
+        window.location.reload();
+      } else {
+        toast({
+          title: "Error",
+          description: result.error || "Failed to login",
+          variant: "destructive",
+        });
+      }
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.message || "Failed to login",
+        description: "Login failed",
         variant: "destructive",
       });
     } finally {
@@ -52,7 +53,7 @@ export const AuthPage = () => {
             <Lock className="h-6 w-6 text-white" />
           </div>
           <CardTitle className="text-2xl">Admin Login</CardTitle>
-          <p className="text-muted-foreground">Enter admin credentials to access the invoice management system</p>
+          <p className="text-muted-foreground">Default: admin@invoicehub.com / Admin@2024</p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">

@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { authLib } from "@/lib/auth";
 import { FileText, Users, Package, Building2, LayoutDashboard, LogOut } from "lucide-react";
 
 interface NavigationProps {
@@ -21,21 +21,13 @@ export const Navigation = ({ activeTab = "dashboard", onTabChange }: NavigationP
   ];
 
   const handleLogout = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      
-      toast({
-        title: "Logged out",
-        description: "You have been logged out successfully",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: "Failed to logout",
-        variant: "destructive",
-      });
-    }
+    authLib.logout();
+    toast({
+      title: "Success",
+      description: "Logged out successfully",
+    });
+    // Trigger a page refresh to update auth state
+    window.location.reload();
   };
 
   return (
