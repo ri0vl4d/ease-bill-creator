@@ -31,7 +31,7 @@ export const Navigation = ({ activeTab = "dashboard", onTabChange }: NavigationP
   };
 
   return (
-    <Card className="m-4 mb-0 p-1 bg-gradient-to-r from-blue-600 to-indigo-600 border-0 shadow-lg">
+    <Card className="m-4 mb-0 p-1 bg-gradient-to-r from-primary to-primary-glow">
       <div className="flex items-center justify-between p-4">
         <div className="flex items-center space-x-2">
           <FileText className="h-6 w-6 text-white" />
@@ -39,18 +39,19 @@ export const Navigation = ({ activeTab = "dashboard", onTabChange }: NavigationP
         </div>
         
         <div className="flex items-center space-x-2">
-          <nav className="flex space-x-1 bg-white/25 rounded-lg p-1">
+          <nav className="flex space-x-1 bg-white/20 rounded-lg p-1">
             {navItems.map((item) => (
               <Button
                 key={item.id}
-                className={`
-                  ${activeTab === item.id 
-                    ? "bg-white text-blue-600 shadow-sm font-medium" 
-                    : "text-white hover:bg-white/20 font-normal"
-                  } transition-all duration-200
-                `}
+                variant={activeTab === item.id ? "secondary" : "ghost"}
                 size="sm"
                 onClick={() => onTabChange?.(item.id)}
+                className={`
+                  ${activeTab === item.id 
+                    ? "bg-white text-primary shadow-sm" 
+                    : "text-white hover:bg-white/20"
+                  }
+                `}
               >
                 <item.icon className="h-4 w-4" />
                 {item.label}
@@ -59,9 +60,10 @@ export const Navigation = ({ activeTab = "dashboard", onTabChange }: NavigationP
           </nav>
           
           <Button
-            className="text-white hover:bg-white/20 transition-all duration-200"
+            variant="ghost"
             size="sm"
             onClick={handleLogout}
+            className="text-white hover:bg-white/20"
             title="Logout"
           >
             <LogOut className="h-4 w-4" />
