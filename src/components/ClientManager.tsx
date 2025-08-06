@@ -166,11 +166,11 @@ export const ClientManager = () => {
 
   return (
     <div className="space-y-6">
-      <Card className="bg-gradient-to-r from-success to-success text-white">
+      <Card className="bg-gradient-to-r from-emerald-600 to-green-600 text-white border-0 shadow-lg">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="p-3 bg-white/20 rounded-full">
+              <div className="p-3 bg-white/25 rounded-full">
                 <Users className="h-8 w-8" />
               </div>
               <div>
@@ -269,7 +269,7 @@ export const ClientManager = () => {
               <Button onClick={handleSave} variant="success">
                 {editingClient ? "Update Client" : "Add Client"}
               </Button>
-              <Button onClick={resetForm} variant="outline">
+              <Button onClick={resetForm} className="border-2 border-gray-300 hover:border-gray-400">
                 Cancel
               </Button>
             </div>
@@ -277,7 +277,7 @@ export const ClientManager = () => {
         </Card>
       )}
 
-      <Card>
+      <Card className="border border-gray-200">
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>Clients ({clients.length})</CardTitle>
@@ -313,7 +313,7 @@ export const ClientManager = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredClients.map((client) => (
-                <Card key={client.id} className="hover:shadow-md transition-shadow">
+                <Card key={client.id} className="hover:shadow-lg transition-all duration-200 border border-gray-200">
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between mb-3">
                       <h3 className="font-semibold text-lg">{client.name}</h3>

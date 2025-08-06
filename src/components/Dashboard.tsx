@@ -63,36 +63,36 @@ export const Dashboard = ({ onTabChange }: DashboardProps) => {
       title: "Total Invoices",
       value: stats.totalInvoices.toString(),
       icon: FileText,
-      color: "text-primary",
-      bgColor: "bg-primary/10",
+      color: "text-blue-600",
+      bgColor: "bg-blue-50",
     },
     {
       title: "Active Clients",
       value: stats.activeClients.toString(),
       icon: Users,
-      color: "text-success",
-      bgColor: "bg-success/10",
+      color: "text-emerald-600",
+      bgColor: "bg-emerald-50",
     },
     {
       title: "Products",
       value: stats.totalProducts.toString(),
       icon: Package,
-      color: "text-info",
-      bgColor: "bg-info/10",
+      color: "text-sky-600",
+      bgColor: "bg-sky-50",
     },
     {
       title: "Revenue",
       value: `₹${stats.totalRevenue.toLocaleString('en-IN')}`,
       icon: DollarSign,
-      color: "text-warning",
-      bgColor: "bg-warning/10",
+      color: "text-orange-600",
+      bgColor: "bg-orange-50",
     },
   ];
 
   return (
     <div className="space-y-6">
       {/* Welcome Section */}
-      <Card className="bg-gradient-to-r from-primary to-primary-glow text-white">
+      <Card className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-0 shadow-lg">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>
@@ -101,7 +101,7 @@ export const Dashboard = ({ onTabChange }: DashboardProps) => {
                 Manage your invoices, clients, and business efficiently
               </p>
             </div>
-            <TrendingUp className="h-16 w-16 text-white/50" />
+            <TrendingUp className="h-16 w-16 text-white/30" />
           </div>
         </CardContent>
       </Card>
@@ -109,7 +109,7 @@ export const Dashboard = ({ onTabChange }: DashboardProps) => {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {statsConfig.map((stat) => (
-          <Card key={stat.title} className="hover:shadow-md transition-shadow">
+          <Card key={stat.title} className="hover:shadow-lg transition-all duration-200 border border-gray-200">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -128,14 +128,14 @@ export const Dashboard = ({ onTabChange }: DashboardProps) => {
       </div>
 
       {/* Quick Actions */}
-      <Card>
+      <Card className="border border-gray-200">
         <CardHeader>
           <CardTitle>Quick Actions</CardTitle>
         </CardHeader>
         <CardContent className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Button
-              variant="gradient"
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white border-0 shadow-md hover:shadow-lg transition-all duration-200"
               size="lg"
               onClick={() => onTabChange("invoices")}
               className="h-20 flex flex-col space-y-2"
@@ -145,7 +145,7 @@ export const Dashboard = ({ onTabChange }: DashboardProps) => {
             </Button>
             
             <Button
-              variant="outline"
+              className="border-2 border-gray-300 hover:border-blue-500 hover:bg-blue-50 transition-all duration-200"
               size="lg"
               onClick={() => onTabChange("clients")}
               className="h-20 flex flex-col space-y-2"
@@ -155,7 +155,7 @@ export const Dashboard = ({ onTabChange }: DashboardProps) => {
             </Button>
             
             <Button
-              variant="outline"
+              className="border-2 border-gray-300 hover:border-blue-500 hover:bg-blue-50 transition-all duration-200"
               size="lg"
               onClick={() => onTabChange("products")}
               className="h-20 flex flex-col space-y-2"
@@ -168,7 +168,7 @@ export const Dashboard = ({ onTabChange }: DashboardProps) => {
       </Card>
 
       {/* Recent Activity */}
-      <Card>
+      <Card className="border border-gray-200">
         <CardHeader>
           <CardTitle>Recent Activity</CardTitle>
         </CardHeader>

@@ -190,11 +190,11 @@ export const ProductManager = () => {
 
   return (
     <div className="space-y-6">
-      <Card className="bg-gradient-to-r from-info to-info text-white">
+      <Card className="bg-gradient-to-r from-sky-600 to-blue-600 text-white border-0 shadow-lg">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="p-3 bg-white/20 rounded-full">
+              <div className="p-3 bg-white/25 rounded-full">
                 <Package className="h-8 w-8" />
               </div>
               <div>
@@ -305,7 +305,7 @@ export const ProductManager = () => {
               <Button onClick={handleSave} variant="success">
                 {editingProduct ? "Update Product" : "Add Product"}
               </Button>
-              <Button onClick={resetForm} variant="outline">
+              <Button onClick={resetForm} className="border-2 border-gray-300 hover:border-gray-400">
                 Cancel
               </Button>
             </div>
@@ -313,7 +313,7 @@ export const ProductManager = () => {
         </Card>
       )}
 
-      <Card>
+      <Card className="border border-gray-200">
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>Products & Services ({products.length})</CardTitle>
@@ -349,7 +349,7 @@ export const ProductManager = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredProducts.map((product) => (
-                <Card key={product.id} className="hover:shadow-md transition-shadow">
+                <Card key={product.id} className="hover:shadow-lg transition-all duration-200 border border-gray-200">
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
@@ -361,7 +361,7 @@ export const ProductManager = () => {
                             </span>
                           )}
                         </div>
-                        <p className="text-2xl font-bold text-primary">
+                        <p className="text-2xl font-bold text-blue-600">
                           ₹{product.unit_price.toFixed(2)}
                           {product.unit && <span className="text-sm text-muted-foreground">/{product.unit}</span>}
                         </p>

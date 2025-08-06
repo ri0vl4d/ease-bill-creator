@@ -2,51 +2,51 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Invoice App Design System - Professional, Clean, Modern */
+/* Invoice App Design System - Professional, Accessible, Cross-Browser Compatible */
 
 @layer base {
   :root {
-    --background: 249 250 251;
-    --foreground: 31 41 55;
+    --background: 255 255 255;
+    --foreground: 15 23 42;
 
     --card: 255 255 255;
-    --card-foreground: 31 41 55;
+    --card-foreground: 15 23 42;
 
     --popover: 255 255 255;
-    --popover-foreground: 31 41 55;
+    --popover-foreground: 15 23 42;
 
-    --primary: 219 78% 58%;
+    --primary: 59 130 246;
     --primary-foreground: 255 255 255;
-    --primary-glow: 219 78% 68%;
+    --primary-glow: 99 102 241;
 
-    --secondary: 243 244 246;
-    --secondary-foreground: 31 41 55;
+    --secondary: 248 250 252;
+    --secondary-foreground: 15 23 42;
 
-    --muted: 249 250 251;
-    --muted-foreground: 107 114 128;
+    --muted: 248 250 252;
+    --muted-foreground: 100 116 139;
 
-    --accent: 34 197 94;
+    --accent: 16 185 129;
     --accent-foreground: 255 255 255;
 
-    --destructive: 239 68% 68%;
+    --destructive: 239 68 68;
     --destructive-foreground: 255 255 255;
 
-    --border: 229 231 235;
+    --border: 226 232 240;
     --input: 255 255 255;
-    --ring: 219 78% 58%;
+    --ring: 59 130 246;
 
     /* Invoice App Specific Colors */
-    --success: 34 197 94;
+    --success: 16 185 129;
     --success-foreground: 255 255 255;
-    --warning: 245 158 11;
-    --warning-foreground: 255 255 255;
-    --info: 59 130 246;
+    --warning: 251 146 60;
+    --warning-foreground: 15 23 42;
+    --info: 14 165 233;
     --info-foreground: 255 255 255;
 
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(219 78% 58%), hsl(219 78% 68%));
-    --gradient-success: linear-gradient(135deg, hsl(34 197 94%), hsl(34 197 84%));
-    --gradient-subtle: linear-gradient(180deg, hsl(249 250 251%), hsl(255 255 255%));
+    --gradient-primary: linear-gradient(135deg, hsl(59 130 246), hsl(99 102 241));
+    --gradient-success: linear-gradient(135deg, hsl(16 185 129), hsl(5 150 105));
+    --gradient-subtle: linear-gradient(180deg, hsl(248 250 252), hsl(255 255 255));
 
     /* Shadows */
     --shadow-soft: 0 1px 3px 0 hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
@@ -58,7 +58,7 @@
 
     --radius: 0.5rem;
 
-    --sidebar-background: 0 0% 98%;
+    --sidebar-background: 248 250 252;
 
     --sidebar-foreground: 240 5.3% 26.1%;
 
@@ -76,35 +76,35 @@
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
+    --background: 2 6 23;
     --foreground: 210 40% 98%;
 
-    --card: 222.2 84% 4.9%;
+    --card: 2 6 23;
     --card-foreground: 210 40% 98%;
 
-    --popover: 222.2 84% 4.9%;
+    --popover: 2 6 23;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 59 130 246;
+    --primary-foreground: 255 255 255;
 
-    --secondary: 217.2 32.6% 17.5%;
+    --secondary: 30 41 59;
     --secondary-foreground: 210 40% 98%;
 
-    --muted: 217.2 32.6% 17.5%;
+    --muted: 30 41 59;
     --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 217.2 32.6% 17.5%;
+    --accent: 16 185 129;
     --accent-foreground: 210 40% 98%;
 
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 239 68 68;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
+    --border: 30 41 59;
+    --input: 30 41 59;
+    --ring: 59 130 246;
+    --sidebar-background: 15 23 42;
+    --sidebar-foreground: 248 250 252;
     --sidebar-primary: 224.3 76.3% 48%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 240 3.7% 15.9%;
@@ -121,5 +121,10 @@
 
   body {
     @apply bg-background text-foreground;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  }
+
+  * {
+    box-sizing: border-box;
   }
 }

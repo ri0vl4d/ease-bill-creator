@@ -141,10 +141,10 @@ export const CompanyProfile = () => {
 
   return (
     <div className="space-y-6">
-      <Card className="bg-gradient-to-r from-primary to-primary-glow text-white">
+      <Card className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-0 shadow-lg">
         <CardContent className="p-6">
           <div className="flex items-center space-x-4">
-            <div className="p-3 bg-white/20 rounded-full">
+            <div className="p-3 bg-white/25 rounded-full">
               <Building2 className="h-8 w-8" />
             </div>
             <div>
@@ -159,7 +159,7 @@ export const CompanyProfile = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Basic Information */}
-        <Card>
+        <Card className="border border-gray-200">
           <CardHeader>
             <CardTitle>Basic Information</CardTitle>
           </CardHeader>
@@ -219,7 +219,7 @@ export const CompanyProfile = () => {
         </Card>
 
         {/* Contact Information */}
-        <Card>
+        <Card className="border border-gray-200">
           <CardHeader>
             <CardTitle>Contact Information</CardTitle>
           </CardHeader>
@@ -278,7 +278,7 @@ export const CompanyProfile = () => {
         </Card>
 
         {/* Company Logo */}
-        <Card className="lg:col-span-2">
+        <Card className="lg:col-span-2 border border-gray-200">
           <CardHeader>
             <CardTitle>Company Logo</CardTitle>
           </CardHeader>
@@ -322,7 +322,7 @@ export const CompanyProfile = () => {
         </Card>
 
         {/* Bank Details */}
-        <Card className="lg:col-span-2">
+        <Card className="lg:col-span-2 border border-gray-200">
           <CardHeader>
             <CardTitle>Bank Details</CardTitle>
           </CardHeader>
@@ -361,7 +361,7 @@ export const CompanyProfile = () => {
       </div>
 
       <div className="flex justify-end">
-        <Button onClick={handleSave} variant="gradient" size="lg" disabled={saving}>
+        <Button onClick={handleSave} className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white border-0 shadow-md hover:shadow-lg transition-all duration-200" size="lg" disabled={saving}>
           {saving ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
