@@ -221,7 +221,28 @@ export const InvoiceDetail = ({ invoice, onEdit, onClose }: InvoiceDetailProps) 
                 </p>
               </div>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">Template:</span>
+                <Select
+                  value={selectedPDFStyle}
+                  onValueChange={(value) => setSelectedPDFStyle(value as PDFStyle)}
+                >
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PDF_STYLE_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        <div>
+                          <div className="font-medium">{option.label}</div>
+                          <div className="text-xs text-muted-foreground">{option.description}</div>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               <Button variant="outline" onClick={onEdit}>
                 <Edit className="h-4 w-4 mr-2" />
                 Edit
