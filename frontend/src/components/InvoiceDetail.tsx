@@ -171,6 +171,7 @@ export const InvoiceDetail = ({ invoice, onEdit, onClose }: InvoiceDetailProps) 
           line_total: item.line_total,
           gst_amount: item.gst_amount,
         })),
+        pdfStyle: selectedPDFStyle,
       });
 
       toast({
