@@ -1,5 +1,10 @@
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { PDFStyle } from '@/types/pdfStyles';
+import { generateSimpleLogoTemplate } from '@/templates/SimpleLogoTemplate';
+import { generateFormalLetterheadTemplate } from '@/templates/FormalLetterheadTemplate';
+import { generateModernMinimalTemplate } from '@/templates/ModernMinimalTemplate';
+import { generateExtrapeInvoiceTemplate } from '@/templates/ExtrapeInvoiceTemplate';
 
 interface InvoiceData {
   invoice: {
@@ -30,6 +35,10 @@ interface InvoiceData {
     gstin: string | null;
     pan: string | null;
     logo_url: string | null;
+    bank_name: string | null;
+    bank_account_number: string | null;
+    bank_ifsc: string | null;
+    website: string | null;
   } | null;
   items: Array<{
     item_name: string;
@@ -40,6 +49,7 @@ interface InvoiceData {
     line_total: number;
     gst_amount: number;
   }>;
+  pdfStyle?: PDFStyle;
 }
 
 export const generateInvoicePDF = async (data: InvoiceData) => {
