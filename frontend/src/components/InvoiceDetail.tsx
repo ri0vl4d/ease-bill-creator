@@ -72,6 +72,7 @@ export const InvoiceDetail = ({ invoice, onEdit, onClose }: InvoiceDetailProps) 
   const [company, setCompany] = useState<CompanyProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [downloadingPDF, setDownloadingPDF] = useState(false);
+  const [selectedPDFStyle, setSelectedPDFStyle] = useState<PDFStyle>(PDFStyle.SIMPLE_LOGO);
 
   useEffect(() => {
     fetchInvoiceDetails();
