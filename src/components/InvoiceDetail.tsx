@@ -3,12 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, Edit, Download, Calendar, Building2, Mail, Phone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { generateInvoicePDF } from "@/utils/pdfGenerator";
-import { PDFStyle, PDF_STYLE_OPTIONS } from "@/types/pdfStyles";
 
 interface InvoiceItem {
   id: string;
@@ -72,7 +70,6 @@ export const InvoiceDetail = ({ invoice, onEdit, onClose }: InvoiceDetailProps) 
   const [company, setCompany] = useState<CompanyProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [downloadingPDF, setDownloadingPDF] = useState(false);
-  const [selectedPDFStyle, setSelectedPDFStyle] = useState<PDFStyle>(PDFStyle.SIMPLE_LOGO);
 
   useEffect(() => {
     fetchInvoiceDetails();
@@ -171,7 +168,6 @@ export const InvoiceDetail = ({ invoice, onEdit, onClose }: InvoiceDetailProps) 
           line_total: item.line_total,
           gst_amount: item.gst_amount,
         })),
-        pdfStyle: selectedPDFStyle,
       });
 
       toast({
@@ -221,28 +217,7 @@ export const InvoiceDetail = ({ invoice, onEdit, onClose }: InvoiceDetailProps) 
                 </p>
               </div>
             </div>
-            <div className="flex gap-2 items-center">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Template:</span>
-                <Select
-                  value={selectedPDFStyle}
-                  onValueChange={(value) => setSelectedPDFStyle(value as PDFStyle)}
-                >
-                  <SelectTrigger className="w-[200px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {PDF_STYLE_OPTIONS.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        <div>
-                          <div className="font-medium">{option.label}</div>
-                          <div className="text-xs text-muted-foreground">{option.description}</div>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="flex gap-2">
               <Button variant="outline" onClick={onEdit}>
                 <Edit className="h-4 w-4 mr-2" />
                 Edit
