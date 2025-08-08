@@ -7,6 +7,7 @@ import { ArrowLeft, Edit, Download, Calendar, Building2, Mail, Phone } from "luc
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { generateInvoicePDF } from "@/utils/pdfGenerator";
+import { TemplateSelector } from "./TemplateSelector";
 
 interface InvoiceItem {
   id: string;
@@ -70,6 +71,8 @@ export const InvoiceDetail = ({ invoice, onEdit, onClose }: InvoiceDetailProps) 
   const [company, setCompany] = useState<CompanyProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [downloadingPDF, setDownloadingPDF] = useState(false);
+  const [showTemplateSelector, setShowTemplateSelector] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState('modern');
 
   useEffect(() => {
     fetchInvoiceDetails();
@@ -143,7 +146,7 @@ export const InvoiceDetail = ({ invoice, onEdit, onClose }: InvoiceDetailProps) 
     });
   };
 
-  const handleDownloadPDF = async () => {
+  const handleDownloadPDF = async (templateId: string = selectedTemplate) => {
     if (!client || !items.length) {
       toast({
         title: "Error",
@@ -168,7 +171,7 @@ export const InvoiceDetail = ({ invoice, onEdit, onClose }: InvoiceDetailProps) 
           line_total: item.line_total,
           gst_amount: item.gst_amount,
         })),
-      });
+      }, templateId);
 
       toast({
         title: "Success",
@@ -185,6 +188,16 @@ export const InvoiceDetail = ({ invoice, onEdit, onClose }: InvoiceDetailProps) 
       setDownloadingPDF(false);
     }
   };
+
+  const handleTemplateSelect = () => {
+    setShowTemplateSelector(true);
+  };
+
+  const handleTemplateConfirm = () => {
+    setShowTemplateSelector(false);
+    handleDownloadPDF(selectedTemplate);
+  };
+
   if (loading) {
     return (
       <Card>
@@ -224,7 +237,7 @@ export const InvoiceDetail = ({ invoice, onEdit, onClose }: InvoiceDetailProps) 
               </Button>
               <Button 
                 variant="outline" 
-                onClick={handleDownloadPDF}
+                onClick={handleTemplateSelect}
                 disabled={downloadingPDF}
               >
                 <Download className="h-4 w-4 mr-2" />
@@ -426,6 +439,16 @@ export const InvoiceDetail = ({ invoice, onEdit, onClose }: InvoiceDetailProps) 
           )}
         </CardContent>
       </Card>
+
+      {/* Template Selector Modal */}
+      {showTemplateSelector && (
+        <TemplateSelector
+          selectedTemplate={selectedTemplate}
+          onTemplateSelect={setSelectedTemplate}
+          onClose={() => setShowTemplateSelector(false)}
+          onConfirm={handleTemplateConfirm}
+        />
+      )}
     </div>
   );
 };
