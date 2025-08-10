@@ -4,112 +4,204 @@ const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat("en-IN", {
     style: "currency",
     currency: "INR",
+    minimumFractionDigits: 2,
   }).format(amount);
 };
 
-const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString("en-IN", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-};
-
 export const generateCorporateTemplate = (data: InvoiceData): string => {
-  const { invoice, client, company, items } = data;
-  
+  const { invoice, client, company, items, taxSummary, bank } = data;
+
+  // Calculate totals and taxes
+  const subTotal = items.reduce((sum, item) => sum + (item.amount || 0), 0);
+  const igst = (invoice.igst || 0);
+  const cgst = (invoice.cgst || 0);
+  const sgst = (invoice.sgst || 0);
+  const total = subTotal + igst + cgst + sgst;
+
+  // Helpers for safe access and fallbacks
+  const safe = (val: string | undefined, fallback = "") => val || fallback;
+
   return `
-    <div style="max-width: 800px; margin: 0 auto; background: white; font-family: 'Arial', sans-serif;">
-      <!-- Header -->
-      <div style="background: linear-gradient(135deg, #059669, #10b981); color: white; padding: 40px; position: relative; overflow: hidden;">
-        <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
-        <div style="position: absolute; bottom: -30px; left: -30px; width: 150px; height: 150px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
-        <div style="position: relative; z-index: 2;">
-          <div style="display: flex; justify-content: space-between; align-items: start;">
-            <div>
-              ${company?.logo_url ? `<img src="${company.logo_url}" alt="Company Logo" style="max-height: 70px; margin-bottom: 20px; filter: brightness(0) invert(1);" />` : ''}
-              <h1 style="margin: 0; font-size: 32px; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
-                ${company?.company_name || 'Your Company'}
-              </h1>
-              ${company?.address ? `<p style="margin: 10px 0; opacity: 0.9; font-size: 16px;">${company.address}</p>` : ''}
-              <div style="margin-top: 15px; opacity: 0.9;">
-                ${company?.email ? `<p style="margin: 3px 0; font-size: 14px;">✉ ${company.email}</p>` : ''}
-                ${company?.phone ? `<p style="margin: 3px 0; font-size: 14px;">📞 ${company.phone}</p>` : ''}
-                ${company?.gstin ? `<p style="margin: 3px 0; font-size: 14px;">🏢 GSTIN: ${company.gstin}</p>` : ''}
-              </div>
+  <html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>GST Invoice Template</title>
+    <link href="https://fonts.googleapis.com/css?family=Alex+Brush" rel="stylesheet"/>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+      body {
+        font-family: 'Roboto', sans-serif;
+        background-color: #f0f2f5;
+      }
+      .page {
+        background: white;
+        width: 210mm;
+        min-height: 297mm;
+        margin: 20px auto;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+      }
+      .content-body {
+        padding: 15mm;
+        flex-grow: 1;
+      }
+      .footer-content {
+        padding: 15mm;
+        padding-top: 0;
+      }
+      @media print {
+        body {
+          background: none;
+        }
+        .page {
+          margin: 0;
+          box-shadow: none;
+          border: none;
+          height: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <!-- Main Content Area -->
+      <div class="content-body">
+        <!-- Header Section -->
+        <header class="flex items-center justify-between pb-2 border-b-2 border-gray-800" style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #1f2937; padding-bottom: 0.5rem;">
+          <div class="flex-shrink-0">
+            <img src="${safe(company?.logo_url, 'https://placehold.co/120x60?text=Your+Logo')}" alt="Company Logo" class="h-16 p-px m-px" style="height: 64px;" />
+          </div>
+          <div class="text-center flex-grow" style="flex-grow: 1; text-align: center;">
+            <h1 class="text-5xl font-bold text-gray-800" style="font-family: 'Alex Brush'; font-size: 3rem; font-weight: bold; color: #1f2937; margin-bottom: 0.25em;">${safe(company?.company_name, 'Your Company')}</h1>
+            <p class="text-sm text-gray-600" style="font-size: 0.875rem; color: #4b5563;">${safe(company?.address, 'Company Address')}</p>
+            <p class="text-sm text-gray-600" style="font-size: 0.875rem; color: #4b5563;">Tel-${safe(company?.phone)} | email: ${safe(company?.email)}</p>
+          </div>
+        </header>
+
+        <!-- Invoice Title -->
+        <div class="text-center my-6" style="text-align: center; margin: 1.5rem 0;">
+          <h2 class="text-xl font-bold tracking-wider" style="font-size: 1.25rem; font-weight: bold; letter-spacing: 0.05em;">GST INVOICE</h2>
+        </div>
+
+        <!-- Invoice Details Section -->
+        <div class="flex justify-between text-xs mb-6" style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 1.5rem;">
+          <div class="w-1/2 pr-4" style="width: 50%; padding-right: 1rem;">
+            <div class="grid grid-cols-3 gap-x-2 gap-y-1" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem 0.5rem;">
+              <p class="font-bold col-span-1" style="font-weight:bold;">Invoice From</p><p class="col-span-2">: ${safe(company?.company_name)}</p>
+              <p class="font-bold col-span-1" style="font-weight:bold;">Address</p><p class="col-span-2">: ${safe(company?.address)}</p>
+              <p class="font-bold col-span-1" style="font-weight:bold;">GSTIN</p><p class="col-span-2">: ${safe(company?.gstin)}</p>
+              <p class="font-bold col-span-1" style="font-weight:bold;">PAN</p><p class="col-span-2">: ${safe(company?.pan)}</p>
             </div>
-            <div style="text-align: right; background: rgba(255,255,255,0.2); padding: 25px; border-radius: 15px; backdrop-filter: blur(10px);">
-              <h2 style="margin: 0; font-size: 36px; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">INVOICE</h2>
-              <p style="margin: 10px 0; font-size: 20px; font-weight: 600;">${invoice.invoice_number}</p>
+          </div>
+          <div class="w-1/2 pl-4" style="width: 50%; padding-left: 1rem;">
+            <div class="grid grid-cols-3 gap-x-2 gap-y-1" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem 0.5rem;">
+              <p class="font-bold col-span-1" style="font-weight:bold;">Invoice To</p><p class="col-span-2">: ${safe(client?.company_name)}</p>
+              <p class="font-bold col-span-1" style="font-weight:bold;">Address</p><p class="col-span-2">: ${safe(client?.address)}</p>
+              <p class="font-bold col-span-1" style="font-weight:bold;">Place of Supply</p><p class="col-span-2">: ${safe(invoice?.place_of_supply)}</p>
+              <p class="font-bold col-span-1" style="font-weight:bold;">GSTIN</p><p class="col-span-2">: ${safe(client?.gstin)}</p>
+              <p class="font-bold col-span-1" style="font-weight:bold;">Invoice No.</p><p class="col-span-2">: ${safe(invoice?.invoice_no)}</p>
+              <p class="font-bold col-span-1" style="font-weight:bold;">Date</p><p class="col-span-2">: ${safe(invoice?.date)}</p>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Invoice Details -->
-      <div style="padding: 40px; background: #f0fdf4;">
-        <div style="display: flex; justify-content: space-between; gap: 30px;">
-          <div style="flex: 1;">
-            <h3 style="margin: 0 0 20px 0; color: #059669; font-size: 20px; font-weight: bold; border-bottom: 3px solid #059669; padding-bottom: 10px;">BILL TO</h3>
-            <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-left: 5px solid #10b981;">
-              <p style="margin: 0 0 12px 0; font-weight: bold; font-size: 20px; color: #1f2937;">
-                ${client.company_name || client.name}
-              </p>
-              ${client.address ? `<p style="margin: 0 0 10px 0; color: #4b5563; line-height: 1.5;">${client.address}</p>` : ''}
-              <div style="margin-top: 15px;">
-                ${client.email ? `<p style="margin: 0 0 8px 0; color: #4b5563;">📧 ${client.email}</p>` : ''}
-                ${client.phone ? `<p style="margin: 0 0 8px 0; color: #4b5563;">📱 ${client.phone}</p>` : ''}
-                ${client.gstin ? `<p style="margin: 0; color: #4b5563;">🏢 GSTIN: ${client.gstin}</p>` : ''}
-              </div>
-            </div>
-          </div>
-          <div style="flex: 1;">
-            <h3 style="margin: 0 0 20px 0; color: #059669; font-size: 20px; font-weight: bold; border-bottom: 3px solid #059669; padding-bottom: 10px;">INVOICE DETAILS</h3>
-            <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-left: 5px solid #10b981;">
-              <div style="margin-bottom: 15px;">
-                <p style="margin: 0 0 8px 0; color: #4b5563; font-size: 14px;">Invoice Date</p>
-                <p style="margin: 0; font-weight: bold; font-size: 16px; color: #1f2937;">📅 ${formatDate(invoice.invoice_date)}</p>
-              </div>
-              ${invoice.due_date ? `
-                <div style="margin-bottom: 15px;">
-                  <p style="margin: 0 0 8px 0; color: #4b5563; font-size: 14px;">Due Date</p>
-                  <p style="margin: 0; font-weight: bold; font-size: 16px; color: #1f2937;">⏰ ${formatDate(invoice.due_date)}</p>
-                </div>
-              ` : ''}
-              <div>
-                <p style="margin: 0 0 8px 0; color: #4b5563; font-size: 14px;">Status</p>
-                <p style="margin: 0; font-weight: bold; font-size: 16px; text-transform: uppercase; color: #059669;">✅ ${invoice.status}</p>
-              </div>
-            </div>
+        <!-- Items Table -->
+        <table class="w-full text-xs border" style="width: 100%; font-size: 0.75rem; border-collapse: collapse; border: 1px solid #d1d5db;">
+          <thead class="bg-gray-100" style="background-color: #f3f4f6;">
+            <tr>
+              <th class="p-2 border font-bold text-center" style="padding: 0.5rem; border: 1px solid #d1d5db; font-weight: bold; text-align: center;">S. NO</th>
+              <th class="p-2 border font-bold text-left" style="padding: 0.5rem; border: 1px solid #d1d5db; font-weight: bold; text-align: left;">Description of Services</th>
+              <th class="p-2 border font-bold text-center" style="padding: 0.5rem; border: 1px solid #d1d5db; font-weight: bold; text-align: center;">SAC/HSN</th>
+              <th class="p-2 border font-bold text-center" style="padding: 0.5rem; border: 1px solid #d1d5db; font-weight: bold; text-align: center;">Quantity</th>
+              <th class="p-2 border font-bold text-right" style="padding: 0.5rem; border: 1px solid #d1d5db; font-weight: bold; text-align: right;">Rate</th>
+              <th class="p-2 border font-bold text-right" style="padding: 0.5rem; border: 1px solid #d1d5db; font-weight: bold; text-align: right;">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${items.map((item, idx) => `
+              <tr>
+                <td class="p-2 border text-center" style="padding: 0.5rem; border: 1px solid #d1d5db; text-align: center;">${idx + 1}</td>
+                <td class="p-2 border" style="padding: 0.5rem; border: 1px solid #d1d5db;">${safe(item.description)}</td>
+                <td class="p-2 border text-center" style="padding: 0.5rem; border: 1px solid #d1d5db; text-align: center;">${safe(item.hsn_sac)}</td>
+                <td class="p-2 border text-center" style="padding: 0.5rem; border: 1px solid #d1d5db; text-align: center;">${item.quantity ?? ''}</td>
+                <td class="p-2 border text-right" style="padding: 0.5rem; border: 1px solid #d1d5db; text-align: right;">${formatCurrency(item.rate || 0)}</td>
+                <td class="p-2 border text-right" style="padding: 0.5rem; border: 1px solid #d1d5db; text-align: right;">${formatCurrency(item.amount || 0)}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+
+        <!-- Totals Section -->
+        <div class="flex justify-end mt-1" style="display:flex; justify-content:flex-end; margin-top: 0.25rem;">
+          <div class="w-2/5" style="width:40%;">
+            <table class="w-full text-xs" style="width:100%; font-size:0.75rem;">
+              <tbody>
+                <tr>
+                  <td class="p-2 font-bold" style="padding:0.5rem; font-weight:bold;">Sub Total:</td>
+                  <td class="p-2 text-right" style="padding:0.5rem; text-align:right;">${formatCurrency(subTotal)}</td>
+                </tr>
+                ${igst > 0 ? `
+                <tr>
+                  <td class="p-2 font-bold" style="padding:0.5rem; font-weight:bold;">IGST @ 18%:</td>
+                  <td class="p-2 text-right" style="padding:0.5rem; text-align:right;">${formatCurrency(igst)}</td>
+                </tr>
+                ` : `
+                <tr>
+                  <td class="p-2 font-bold" style="padding:0.5rem; font-weight:bold;">SGST @ 9%:</td>
+                  <td class="p-2 text-right" style="padding:0.5rem; text-align:right;">${formatCurrency(sgst)}</td>
+                </tr>
+                <tr>
+                  <td class="p-2 font-bold" style="padding:0.5rem; font-weight:bold;">CGST @ 9%:</td>
+                  <td class="p-2 text-right" style="padding:0.5rem; text-align:right;">${formatCurrency(cgst)}</td>
+                </tr>
+                `}
+                <tr class="font-bold bg-gray-100" style="font-weight:bold; background-color:#f3f4f6;">
+                  <td class="p-2 border-y" style="padding:0.5rem; border-top:1px solid #d1d5db; border-bottom:1px solid #d1d5db;">TOTAL AMOUNT PAYABLE:</td>
+                  <td class="p-2 border-y text-right" style="padding:0.5rem; border-top:1px solid #d1d5db; border-bottom:1px solid #d1d5db; text-align:right;">${formatCurrency(total)}</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
-      </div>
 
-      <!-- Items Table -->
-      <div style="padding: 40px;">
-        <h3 style="margin: 0 0 25px 0; color: #059669; font-size: 22px; font-weight: bold;">INVOICE ITEMS</h3>
-        <div style="background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-          <table style="width: 100%; border-collapse: collapse;">
-            <thead>
-              <tr style="background: linear-gradient(135deg, #059669, #10b981); color: white;">
-                <th style="padding: 20px; text-align: left; font-weight: bold; font-size: 16px;">DESCRIPTION</th>
-                <th style="padding: 20px; text-align: center; font-weight: bold; font-size: 16px; width: 80px;">QTY</th>
-                <th style="padding: 20px; text-align: right; font-weight: bold; font-size: 16px; width: 120px;">RATE</th>
-                <th style="padding: 20px; text-align: center; font-weight: bold; font-size: 16px; width: 80px;">GST%</th>
-                <th style="padding: 20px; text-align: right; font-weight: bold; font-size: 16px; width: 140px;">AMOUNT</th>
+        <!-- Amount in Words -->
+        <div class="text-xs mt-4" style="font-size:0.75rem; margin-top:1rem;">
+          <p><strong>Amount Chargeable (in words):</strong> ${safe(invoice.amount_words, "")}</p>
+          <p><strong>GST Payable under reverse charge:</strong> ${invoice.reverse_charge ? "YES" : "NO"}</p>
+        </div>
+
+        <!-- Tax Summary Table -->
+        <div class="text-xs mt-4" style="font-size:0.75rem; margin-top:1rem;">
+          <table class="w-full text-xs border" style="width:100%; font-size:0.75rem; border-collapse:collapse; border:1px solid #d1d5db;">
+            <thead class="bg-gray-100" style="background-color:#f3f4f6;">
+              <tr>
+                <th class="p-2 border font-bold text-center" style="padding:0.5rem; border:1px solid #d1d5db; font-weight:bold; text-align:center;">SAC</th>
+                <th class="p-2 border font-bold text-right" style="padding:0.5rem; border:1px solid #d1d5db; font-weight:bold; text-align:right;">Taxable Value</th>
+                <th class="p-2 border font-bold text-right" style="padding:0.5rem; border:1px solid #d1d5db; font-weight:bold; text-align:right;">CGST (9%)</th>
+                <th class="p-2 border font-bold text-right" style="padding:0.5rem; border:1px solid #d1d5db; font-weight:bold; text-align:right;">SGST (9%)</th>
+                <th class="p-2 border font-bold text-right" style="padding:0.5rem; border:1px solid #d1d5db; font-weight:bold; text-align:right;">IGST (18%)</th>
+                <th class="p-2 border font-bold text-right" style="padding:0.5rem; border:1px solid #d1d5db; font-weight:bold; text-align:right;">Total Tax Amount</th>
               </tr>
             </thead>
             <tbody>
-              ${items.map((item, index) => `
-                <tr style="border-bottom: 1px solid #e5e7eb; ${index % 2 === 0 ? 'background: #f9fafb;' : 'background: white;'}">
-                  <td style="padding: 20px; vertical-align: top;">
-                    <div style="font-weight: bold; margin-bottom: 6px; color: #1f2937; font-size: 16px;">${item.item_name}</div>
-                    ${item.description ? `<div style="font-size: 14px; color: #6b7280; line-height: 1.4;">${item.description}</div>` : ''}
-                  </td>
-                  <td style="padding: 20px; text-align: center; font-size: 16px; font-weight: 600; color: #059669;">${item.quantity}</td>
-                  <td style="padding: 20px; text-align: right; font-size: 16px; color: #374151;">${formatCurrency(item.unit_price)}</td>
-                  <td style="padding: 20px; text-align: center; font-size: 16px; color: #374151;">${item.gst_rate}%</td>
-                  <td style="padding: 20px; text-align: right; font-weight: bold; font-size: 16px; color: #1f2937;">${formatCurrency(item.line_total + item.gst_amount)}</td>
+              ${(taxSummary && taxSummary.length > 0 ? taxSummary : [{
+                sac: items[0]?.hsn_sac || '',
+                taxable_value: subTotal,
+                cgst: cgst,
+                sgst: sgst,
+                igst: igst,
+                total: igst + cgst + sgst,
+              }]).map((row: any) => `
+                <tr>
+                  <td class="p-2 border text-center" style="padding:0.5rem; border:1px solid #d1d5db; text-align:center;">${row.sac}</td>
+                  <td class="p-2 border text-right" style="padding:0.5rem; border:1px solid #d1d5db; text-align:right;">${formatCurrency(row.taxable_value)}</td>
+                  <td class="p-2 border text-right" style="padding:0.5rem; border:1px solid #d1d5db; text-align:right;">${formatCurrency(row.cgst)}</td>
+                  <td class="p-2 border text-right" style="padding:0.5rem; border:1px solid #d1d5db; text-align:right;">${formatCurrency(row.sgst)}</td>
+                  <td class="p-2 border text-right" style="padding:0.5rem; border:1px solid #d1d5db; text-align:right;">${formatCurrency(row.igst)}</td>
+                  <td class="p-2 border text-right" style="padding:0.5rem; border:1px solid #d1d5db; text-align:right;">${formatCurrency(row.total)}</td>
                 </tr>
               `).join('')}
             </tbody>
@@ -117,53 +209,31 @@ export const generateCorporateTemplate = (data: InvoiceData): string => {
         </div>
       </div>
 
-      <!-- Totals -->
-      <div style="padding: 0 40px 40px; display: flex; justify-content: flex-end;">
-        <div style="width: 400px;">
-          <div style="background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-            <div style="padding: 25px; border-bottom: 1px solid #e5e7eb;">
-              <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
-                <span style="color: #6b7280; font-size: 16px;">Subtotal:</span>
-                <span style="font-weight: bold; color: #1f2937; font-size: 16px;">${formatCurrency(invoice.subtotal)}</span>
-              </div>
-              <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
-                <span style="color: #6b7280; font-size: 16px;">Total GST:</span>
-                <span style="font-weight: bold; color: #1f2937; font-size: 16px;">${formatCurrency(invoice.total_gst)}</span>
-              </div>
-              ${invoice.discount > 0 ? `
-                <div style="display: flex; justify-content: space-between;">
-                  <span style="color: #6b7280; font-size: 16px;">Discount:</span>
-                  <span style="font-weight: bold; color: #dc2626; font-size: 16px;">-${formatCurrency(invoice.discount)}</span>
-                </div>
-              ` : ''}
-            </div>
-            <div style="padding: 25px; background: linear-gradient(135deg, #059669, #10b981); color: white;">
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-size: 20px; font-weight: bold;">TOTAL AMOUNT:</span>
-                <span style="font-size: 28px; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">${formatCurrency(invoice.total_amount)}</span>
-              </div>
-            </div>
+      <!-- Footer Content Area -->
+      <div class="footer-content">
+        <!-- Bank Details -->
+        <div class="text-xs mt-4 pt-4 border-t" style="font-size:0.75rem; margin-top:1rem; padding-top:1rem; border-top:1px solid #d1d5db;">
+          <p><strong>Bank Account Details:</strong></p>
+          <div class="grid grid-cols-2" style="display:grid; grid-template-columns:repeat(2, minmax(0, 1fr));">
+            <p><strong>Account No:</strong> ${safe(bank?.account_no)}</p>
+            <p><strong>Account Name:</strong> ${safe(bank?.account_name)}</p>
+            <p><strong>Bank & Branch Name:</strong> ${safe(bank?.bank_name)}</p>
+            <p><strong>IFSC Code:</strong> ${safe(bank?.ifsc)}</p>
+            <p><strong>Account Type:</strong> ${safe(bank?.account_type)}</p>
           </div>
         </div>
-      </div>
 
-      ${invoice.notes ? `
-        <div style="padding: 0 40px 40px;">
-          <div style="background: #f0fdf4; border-left: 5px solid #10b981; padding: 25px; border-radius: 0 12px 12px 0;">
-            <h4 style="margin: 0 0 15px 0; color: #059669; font-size: 18px; font-weight: bold;">📝 NOTES</h4>
-            <p style="margin: 0; color: #374151; line-height: 1.6; font-size: 16px;">${invoice.notes}</p>
+        <!-- Signature Section -->
+        <div class="flex justify-end mt-16" style="display:flex; justify-content:flex-end; margin-top:4rem;">
+          <div class="text-center text-xs" style="text-align:center; font-size:0.75rem;">
+            <p class="font-bold" style="font-weight:bold;">For ${safe(company?.company_name)}</p>
+            <div class="h-16" style="height:4rem;"></div>
+            <p class="border-t pt-1" style="border-top:1px solid #d1d5db; padding-top:0.25rem;">Director / Authorized Signatory</p>
           </div>
-        </div>
-      ` : ''}
-
-      <!-- Footer -->
-      <div style="background: linear-gradient(135deg, #059669, #10b981); color: white; padding: 30px; text-align: center; position: relative; overflow: hidden;">
-        <div style="position: absolute; top: -30px; right: -30px; width: 150px; height: 150px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
-        <div style="position: relative; z-index: 2;">
-          <p style="margin: 0; font-size: 20px; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">🙏 Thank you for your business!</p>
-          ${company?.email ? `<p style="margin: 10px 0 0 0; font-size: 14px; opacity: 0.9;">For any queries, please contact us at ${company.email}</p>` : ''}
         </div>
       </div>
     </div>
+  </body>
+  </html>
   `;
 };
