@@ -14,6 +14,9 @@ interface Client {
   email: string | null;
   phone: string | null;
   address: string | null;
+  city: string | null;
+  state: string | null;
+  pin_code: string | null;
   gstin: string | null;
   company_name: string | null;
 }
@@ -31,6 +34,9 @@ export const ClientManager = () => {
     email: "",
     phone: "",
     address: "",
+    city: "",
+    state: "",
+    pin_code: "",
     gstin: "",
     company_name: "",
   });
@@ -41,6 +47,9 @@ export const ClientManager = () => {
       email: "",
       phone: "",
       address: "",
+      city: "",
+      state: "",
+      pin_code: "",
       gstin: "",
       company_name: "",
     });
@@ -242,8 +251,33 @@ export const ClientManager = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
+            <div>
+              <Label htmlFor="clientAddress">Address</Label>
+              <Textarea
+                id="clientAddress"
+                value={formData.address || ""}
+                onChange={handleInputChange("address")}
+                placeholder="Street Address"
+                rows={2}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <Label htmlFor="city">City</Label>
+                    <Input id="city" value={formData.city || ""} onChange={handleInputChange("city")} placeholder="City"/>
+                </div>
+                <div>
+                    <Label htmlFor="state">State</Label>
+                    <Input id="state" value={formData.state || ""} onChange={handleInputChange("state")} placeholder="State"/>
+                </div>
+                <div>
+                    <Label htmlFor="pin_code">Pin Code</Label>
+                    <Input id="pin_code" value={formData.pin_code || ""} onChange={handleInputChange("pin_code")} placeholder="Pin Code"/>
+                </div>
+            </div>
+
+            <div>
                 <Label htmlFor="clientGstin">GSTIN</Label>
                 <Input
                   id="clientGstin"
@@ -251,18 +285,6 @@ export const ClientManager = () => {
                   onChange={handleInputChange("gstin")}
                   placeholder="22AAAAA0000A1Z5"
                 />
-              </div>
-            </div>
-
-            <div>
-              <Label htmlFor="clientAddress">Address</Label>
-              <Textarea
-                id="clientAddress"
-                value={formData.address || ""}
-                onChange={handleInputChange("address")}
-                placeholder="Complete Address"
-                rows={3}
-              />
             </div>
 
             <div className="flex space-x-4">
@@ -338,6 +360,9 @@ export const ClientManager = () => {
                     <div className="space-y-2 text-sm">
                       {client.company_name && (
                         <p className="text-muted-foreground font-medium">{client.company_name}</p>
+                      )}
+                       {client.address && (
+                        <p className="text-muted-foreground">{client.address}, {client.city}, {client.state} - {client.pin_code}</p>
                       )}
                       {client.email && (
                         <p className="text-muted-foreground">{client.email}</p>

@@ -50,6 +50,9 @@ export type Database = {
       clients: {
         Row: {
           address: string | null
+          city: string | null
+          state: string | null
+          pin_code: string | null
           company_name: string | null
           created_at: string
           email: string | null
@@ -99,6 +102,9 @@ export type Database = {
           phone: string | null
           updated_at: string
           website: string | null
+          state: string | null
+          city: string | null
+          pin_code: string | null
         }
         Insert: {
           address?: string | null
@@ -115,6 +121,9 @@ export type Database = {
           phone?: string | null
           updated_at?: string
           website?: string | null
+          state?: string | null
+          city?: string | null
+          pin_code?: string | null
         }
         Update: {
           address?: string | null
@@ -131,6 +140,9 @@ export type Database = {
           phone?: string | null
           updated_at?: string
           website?: string | null
+          state?: string | null
+          city?: string | null
+          pin_code?: string | null
         }
         Relationships: []
       }
@@ -199,6 +211,7 @@ export type Database = {
       }
       invoices: {
         Row: {
+          gst_payable_reverse_charge: any
           client_id: string
           company_id: string | null
           created_at: string
@@ -331,7 +344,7 @@ export type Tables<
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }

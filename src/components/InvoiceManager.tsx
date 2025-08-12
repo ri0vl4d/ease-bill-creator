@@ -23,6 +23,7 @@ interface Invoice {
   total_amount: number;
   discount: number;
   notes: string | null;
+  gst_payable_reverse_charge?: boolean;
   client_id: string;
   clients?: {
     name: string;

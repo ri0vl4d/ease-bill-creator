@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Plus, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { Switch } from "@/components/ui/switch";
 
 interface Client {
   id: string;
@@ -48,6 +49,7 @@ interface Invoice {
   total_amount: number;
   discount: number;
   notes: string | null;
+  gst_payable_reverse_charge?: boolean; // Make field optional for existing data
 }
 
 interface InvoiceFormProps {
@@ -71,6 +73,8 @@ export const InvoiceForm = ({ invoice, clients, onSave, onCancel }: InvoiceFormP
     status: invoice?.status || "draft",
     discount: invoice?.discount || 0,
     notes: invoice?.notes || "",
+    gst_payable_reverse_charge: invoice?.gst_payable_reverse_charge || false, // Add this line
+
   });
 
   const [items, setItems] = useState<InvoiceItem[]>([
@@ -247,6 +251,8 @@ export const InvoiceForm = ({ invoice, clients, onSave, onCancel }: InvoiceFormP
         subtotal,
         total_gst: totalGst,
         total_amount: totalAmount,
+        gst_payable_reverse_charge: formData.gst_payable_reverse_charge // Ensure it's included
+
       };
 
       let invoiceId: string;
@@ -289,6 +295,7 @@ export const InvoiceForm = ({ invoice, clients, onSave, onCancel }: InvoiceFormP
         gst_rate: item.gst_rate,
         line_total: item.line_total,
         gst_amount: item.gst_amount,
+        
       }));
 
       const { error: itemsError } = await supabase
@@ -562,6 +569,7 @@ export const InvoiceForm = ({ invoice, clients, onSave, onCancel }: InvoiceFormP
                     />
                   </div>
 
+
                   <div className="border-t pt-4">
                     <div className="space-y-2">
                       <div className="flex justify-between">
@@ -585,6 +593,22 @@ export const InvoiceForm = ({ invoice, clients, onSave, onCancel }: InvoiceFormP
                 </div>
               </CardContent>
             </Card>
+            <Card>
+              <CardContent className="p-4">
+                  <div className="space-y-4">
+                      {/* ... discount and notes fields ... */}
+                      <div className="flex items-center space-x-2 pt-4">
+                          <Switch
+                              id="gst-reverse-charge"
+                              checked={formData.gst_payable_reverse_charge}
+                              onCheckedChange={(checked: boolean) => setFormData({...formData, gst_payable_reverse_charge: checked})}
+                          />
+                          <Label htmlFor="gst-reverse-charge">GST Payable on Reverse Charge</Label>
+                      </div>
+                      {/* ... totals display ... */}
+                  </div>
+              </CardContent>
+          </Card>
 
             {/* Actions */}
             <div className="flex gap-4">

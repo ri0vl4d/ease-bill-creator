@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, Edit, Download, Calendar, Building2, Mail, Phone } from "lucide-react";
+import { ArrowLeft, Edit, Download, Calendar, Building2, Mail, Phone, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { generateInvoicePDF } from "@/utils/pdfGenerator";
@@ -56,6 +56,8 @@ interface Invoice {
   discount: number;
   notes: string | null;
   client_id: string;
+  gst_payable_reverse_charge?: boolean; // Add this line
+
 }
 
 interface InvoiceDetailProps {
@@ -365,6 +367,13 @@ export const InvoiceDetail = ({ invoice, onEdit, onClose }: InvoiceDetailProps) 
               <Badge variant={getStatusVariant(invoice.status)} className="mt-1">
                 {invoice.status}
               </Badge>
+            </div>
+            <div>
+                <p className="text-sm text-muted-foreground">Reverse Charge</p>
+                <p className={`font-medium flex items-center gap-2 ${invoice.gst_payable_reverse_charge ? 'text-destructive' : 'text-muted-foreground'}`}>
+                    <AlertCircle className="h-4 w-4" />
+                    {invoice.gst_payable_reverse_charge ? "Yes" : "No"}
+                </p>
             </div>
           </div>
         </CardContent>

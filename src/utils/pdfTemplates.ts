@@ -5,7 +5,7 @@ export type { InvoiceData, TemplateConfig } from './pdfTemplates/types';
 import { generateModernTemplate } from './pdfTemplates/generators/modern';
 import { generateClassicTemplate } from './pdfTemplates/generators/classic';
 import { generateMinimalTemplate } from './pdfTemplates/generators/minimal';
-import { generateCorporateTemplate } from './pdfTemplates/generators/corporate';
+import { generateExtrapeTemplate } from './pdfTemplates/generators/extrape';
 
 import type { TemplateConfig } from './pdfTemplates/types';
 
@@ -44,14 +44,14 @@ export const INVOICE_TEMPLATES: TemplateConfig[] = [
     }
   },
   {
-    id: 'corporate',
-    name: 'Corporate Elite',
-    description: 'Professional corporate design with green accents',
-    preview: '/templates/corporate-preview.png',
+    id: 'Extrape',
+    name: 'Extrape Format',
+    description: 'Professional Extrape design ',
+    preview: '/templates/Extrape-preview.png',
     colors: {
-      primary: '#059669',
-      secondary: '#f0fdf4',
-      accent: '#10b981'
+      primary: '#1f2937',
+      secondary: '#f9fafb',
+      accent: '#6b7280'
     }
   }
 ];
@@ -61,5 +61,5 @@ export const TEMPLATE_GENERATORS = {
   modern: generateModernTemplate,
   classic: generateClassicTemplate,
   minimal: generateMinimalTemplate,
-  corporate: generateCorporateTemplate,
+  Extrape: generateExtrapeTemplate,
 };

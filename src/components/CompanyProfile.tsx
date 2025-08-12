@@ -13,7 +13,7 @@ interface CompanyData {
   address: string;
   city: string;
   state: string;
-  zipCode: string;
+  pinCode: string;
   phone: string;
   email: string;
   website: string;
@@ -32,7 +32,7 @@ export const CompanyProfile = () => {
     address: "",
     city: "",
     state: "",
-    zipCode: "",
+    pinCode: "",
     phone: "",
     email: "",
     website: "",
@@ -65,9 +65,9 @@ export const CompanyProfile = () => {
         setCompanyData({
           name: data.company_name || "",
           address: data.address || "",
-          city: "", // Not in database schema
-          state: "", // Not in database schema
-          zipCode: "", // Not in database schema
+          city: data.city || "", 
+          state: data.state || "", 
+          pinCode: data.pin_code || "", 
           phone: data.phone || "",
           email: data.email || "",
           website: data.website || "",
@@ -108,6 +108,9 @@ export const CompanyProfile = () => {
         .upsert({
           company_name: companyData.name,
           address: companyData.address,
+          city: companyData.city || "",
+          state: companyData.state || "",
+          pin_code: companyData.pinCode || "",
           phone: companyData.phone,
           email: companyData.email,
           website: companyData.website,
@@ -207,12 +210,12 @@ export const CompanyProfile = () => {
             </div>
 
             <div>
-              <Label htmlFor="zipCode">ZIP Code</Label>
+              <Label htmlFor="pinCode">PinCode</Label>
               <Input
-                id="zipCode"
-                value={companyData.zipCode}
-                onChange={handleInputChange("zipCode")}
-                placeholder="ZIP Code"
+                id="pinCode"
+                value={companyData.pinCode}
+                onChange={handleInputChange("pinCode")}
+                placeholder="PinCode"
               />
             </div>
           </CardContent>
